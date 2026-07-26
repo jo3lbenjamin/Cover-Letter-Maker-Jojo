@@ -14,6 +14,19 @@ const CATEGORIES: RequirementCategory[] = [
   "technologies",
 ];
 
+/** Low-signal words that appear in most requirements regardless of specifics. */
+const STOPWORDS = new Set([
+  "degree",
+  "degrees",
+  "bachelor",
+  "bachelors",
+  "master",
+  "masters",
+  "phd",
+  "required",
+  "preferred",
+]);
+
 /** Lowercase, trimmed comparison string. */
 function normalize(s: string): string {
   return s.toLowerCase().trim();
@@ -39,23 +52,18 @@ function buildHaystacks(profile: CandidateProfile): string[] {
   if (profile.university) haystacks.push(normalize(profile.university));
   if (profile.degree_year) haystacks.push(normalize(profile.degree_year));
 
-  // Infer degree type if education info exists
-  if (profile.programme || profile.university) {
-    haystacks.push("bachelor");
-  }
-
   return haystacks.filter((h) => h.length > 0);
 }
 
 /**
  * A requirement is considered matched when at least 60% of its significant
- * (length > 2) tokens appear as substrings somewhere in the profile text.
+ * (length > 2, non-stopword) tokens appear as substrings somewhere in the profile text.
  * This is a deterministic heuristic, not a semantic match.
  */
 function requirementMatches(requirement: string, haystacks: string[]): boolean {
   const reqTokens = normalize(requirement)
     .split(/\W+/)
-    .filter((t) => t.length > 2);
+    .filter((t) => t.length > 2 && !STOPWORDS.has(t));
 
   if (reqTokens.length === 0) return false;
 
