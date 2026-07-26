@@ -60,12 +60,22 @@ function buildHaystacks(profile: CandidateProfile): string[] {
  * (length > 2, non-stopword) tokens appear as substrings somewhere in the profile text.
  * This is a deterministic heuristic, not a semantic match.
  */
-function requirementMatches(requirement: string, haystacks: string[]): boolean {
+function requirementMatches(
+  requirement: string,
+  haystacks: string[],
+  profile: CandidateProfile
+): boolean {
   const reqTokens = normalize(requirement)
     .split(/\W+/)
     .filter((t) => t.length > 2 && !STOPWORDS.has(t));
 
-  if (reqTokens.length === 0) return false;
+  if (reqTokens.length === 0) {
+    // The requirement is entirely boilerplate (e.g. "Bachelor's degree required").
+    // Rather than unconditionally failing it, treat it as satisfied when the
+    // candidate has any education signal at all — the closest honest match
+    // for a requirement this generic without fabricating a specific degree.
+    return Boolean(profile.programme || profile.university || profile.degree_year);
+  }
 
   const matchedTokens = reqTokens.filter((token) =>
     haystacks.some((hay) => hay.includes(token))
@@ -105,7 +115,7 @@ export function computeCoverage(
 
   for (const req of requirements) {
     perCategoryTotal[req.category] += 1;
-    if (requirementMatches(req.text, haystacks)) {
+    if (requirementMatches(req.text, haystacks, profile)) {
       matched_requirements.push(req.text);
       perCategoryMatched[req.category] += 1;
     } else {

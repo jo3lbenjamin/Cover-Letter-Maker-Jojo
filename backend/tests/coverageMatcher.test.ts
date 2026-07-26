@@ -72,4 +72,29 @@ describe("computeCoverage", () => {
     expect(result.category_scores.skills).toBe(0);
     expect(result.category_scores.experience).toBe(0);
   });
+
+  it("matches an all-stopword requirement (e.g. 'Bachelor's degree required') when the profile has education signal", () => {
+    const result = computeCoverage(PROFILE, [
+      { text: "Bachelor's degree required", category: "education" },
+    ]);
+
+    expect(result.matched_requirements).toContain("Bachelor's degree required");
+    expect(result.missing_requirements).not.toContain("Bachelor's degree required");
+  });
+
+  it("does not match an all-stopword requirement when the profile has no education signal", () => {
+    const profileWithoutEducation: CandidateProfile = {
+      ...PROFILE,
+      programme: undefined,
+      university: undefined,
+      degree_year: undefined,
+    };
+
+    const result = computeCoverage(profileWithoutEducation, [
+      { text: "Bachelor's degree required", category: "education" },
+    ]);
+
+    expect(result.missing_requirements).toContain("Bachelor's degree required");
+    expect(result.matched_requirements).not.toContain("Bachelor's degree required");
+  });
 });

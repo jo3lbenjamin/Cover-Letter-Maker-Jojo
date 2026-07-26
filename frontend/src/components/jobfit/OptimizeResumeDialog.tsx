@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
-import { resumeStore } from "@/lib/resumeStore";
+import { resumeStore, MAX_RESUMES } from "@/lib/resumeStore";
 import type { ResumeRecord, MatchAnalysisApiResponse } from "@/types/jobFit";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -93,6 +93,10 @@ export function OptimizeResumeDialog({
 
   const handleConfirmSave = () => {
     if (!optimizedProfile) return;
+    if (resumeStore.list().length >= MAX_RESUMES) {
+      toast.error(`Resume library is full (max ${MAX_RESUMES}). Delete one first.`);
+      return;
+    }
     const newResume: ResumeRecord = {
       id: crypto.randomUUID(),
       name: `${resume.name} (Optimized)`,

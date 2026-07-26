@@ -63,4 +63,10 @@ describe("analyzeMatch", () => {
     expect(result.critical_missing_skills).toEqual(["Docker"]);
     expect(result.estimated_ranking_band).toBe("Competitive");
   });
+
+  it("propagates a Stage 1 parsing failure instead of returning a fake 0% match", async () => {
+    mockedChat.mockResolvedValueOnce("not json").mockResolvedValueOnce("still not json");
+
+    await expect(analyzeMatch(PROFILE, "some job posting text")).rejects.toThrow();
+  });
 });

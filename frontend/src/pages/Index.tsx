@@ -11,6 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { ProfileEditor } from "@/components/ProfileEditor";
@@ -78,6 +83,10 @@ const Index = () => {
   const [profile, setProfile] = useState<CandidateProfile>(loadProfile);
   const [instructions, setInstructions] = useState<GenerationInstructions>(loadInstructions);
   const [qualityChecks, setQualityChecks] = useState<QualityChecks | null>(null);
+  const [pendingHandoff, setPendingHandoff] = useState<{
+    profile: CandidateProfile;
+    jobPosting?: string;
+  } | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -90,18 +99,29 @@ const Index = () => {
       | null;
 
     if (handoffState?.profile) {
-      saveProfile(handoffState.profile);
-      setProfile(handoffState.profile);
-      if (handoffState.jobPosting) {
-        setJobPostingInput(handoffState.jobPosting, false);
-      }
-      toast.success("Loaded profile and job posting from Job Fit.");
-      navigate(".", { replace: true, state: null });
+      setPendingHandoff({ profile: handoffState.profile, jobPosting: handoffState.jobPosting });
     } else {
       setProfile(loadProfile());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleConfirmHandoff = () => {
+    if (!pendingHandoff) return;
+    saveProfile(pendingHandoff.profile);
+    setProfile(pendingHandoff.profile);
+    if (pendingHandoff.jobPosting) {
+      setJobPostingInput(pendingHandoff.jobPosting, false);
+    }
+    toast.success("Loaded profile and job posting from Job Fit.");
+    setPendingHandoff(null);
+    navigate(".", { replace: true, state: null });
+  };
+
+  const handleCancelHandoff = () => {
+    setPendingHandoff(null);
+    navigate(".", { replace: true, state: null });
+  };
 
   // Auto-parse job posting to highlight key requirements/keywords.
   useEffect(() => {
@@ -830,6 +850,29 @@ const Index = () => {
         onOpenChange={setShowInstructions}
         onInstructionsSaved={setInstructions}
       />
+
+      <AlertDialog
+        open={!!pendingHandoff}
+        onOpenChange={(open) => { if (!open) handleCancelHandoff(); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Load resume from Job Fit?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace your currently saved profile with this resume's info.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmHandoff}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              Load resume
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

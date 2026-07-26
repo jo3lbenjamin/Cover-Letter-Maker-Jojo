@@ -9,6 +9,7 @@ import { extractTextFromFile } from "@/lib/fileTextExtractor";
 import { buildProfileFromExtraction } from "@/lib/resumeFromExtraction";
 import { resumeStore, MAX_RESUMES } from "@/lib/resumeStore";
 import { jobAnalysisStore } from "@/lib/jobAnalysisStore";
+import { isProfileComplete } from "@/lib/profile";
 import { MatchResultsPanel } from "@/components/jobfit/MatchResultsPanel";
 import { OptimizeResumeDialog } from "@/components/jobfit/OptimizeResumeDialog";
 import type { ResumeRecord, MatchAnalysisApiResponse, JobAnalysisRecord } from "@/types/jobFit";
@@ -95,6 +96,12 @@ const JobFit = () => {
     }
     if (!jobPosting.trim()) {
       toast.error("Paste a job posting first.");
+      return;
+    }
+    if (!isProfileComplete(selectedResume.profile)) {
+      toast.error(
+        "This resume is missing required info (name, email, location, or phone) — try uploading a clearer resume file."
+      );
       return;
     }
 
@@ -199,7 +206,12 @@ const JobFit = () => {
               {resumes.map((r) => (
                 <button
                   key={r.id}
-                  onClick={() => setSelectedResumeId(r.id)}
+                  onClick={() => {
+                    if (r.id === selectedResumeId) return;
+                    setSelectedResumeId(r.id);
+                    setAnalysis(null);
+                    setAnalysisRecord(null);
+                  }}
                   className={`flex items-center justify-between gap-2 rounded-lg border p-3 text-left transition-colors ${
                     selectedResumeId === r.id
                       ? "border-accent/50 bg-accent/5"

@@ -43,12 +43,26 @@ describe("parseCategorizedRequirements", () => {
     );
   });
 
-  it("falls back to safe defaults when the LLM response is not valid JSON", async () => {
-    mockedChat.mockResolvedValueOnce("not json");
+  it("retries once when the LLM response is not valid JSON, then succeeds", async () => {
+    mockedChat.mockResolvedValueOnce("not json").mockResolvedValueOnce(MOCK_RESPONSE);
 
     const result = await parseCategorizedRequirements("some job posting text");
 
-    expect(result.company_name).toBe("Unknown");
-    expect(result.categorized_requirements).toEqual([]);
+    expect(mockedChat).toHaveBeenCalledTimes(2);
+    expect(result.company_name).toBe("Acme Corp");
+  });
+
+  it("throws instead of returning safe defaults when both attempts fail", async () => {
+    mockedChat.mockResolvedValueOnce("not json").mockResolvedValueOnce("still not json");
+
+    await expect(parseCategorizedRequirements("some job posting text")).rejects.toThrow();
+    expect(mockedChat).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws when the LLM call itself rejects on both attempts", async () => {
+    mockedChat.mockRejectedValueOnce(new Error("LLM timeout")).mockRejectedValueOnce(new Error("LLM timeout"));
+
+    await expect(parseCategorizedRequirements("some job posting text")).rejects.toThrow();
+    expect(mockedChat).toHaveBeenCalledTimes(2);
   });
 });
