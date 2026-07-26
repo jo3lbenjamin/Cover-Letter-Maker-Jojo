@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Loader2, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, FileText, Trash2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { extractTextFromFile } from "@/lib/fileTextExtractor";
 import { buildProfileFromExtraction } from "@/lib/resumeFromExtraction";
 import { resumeStore, MAX_RESUMES } from "@/lib/resumeStore";
-import type { ResumeRecord } from "@/types/jobFit";
+import { jobAnalysisStore } from "@/lib/jobAnalysisStore";
+import type { ResumeRecord, MatchAnalysisApiResponse, JobAnalysisRecord } from "@/types/jobFit";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -16,6 +18,9 @@ const JobFit = () => {
   const [resumes, setResumes] = useState<ResumeRecord[]>([]);
   const [selectedResumeId, setSelectedResumeId] = useState<string>();
   const [isUploading, setIsUploading] = useState(false);
+  const [jobPosting, setJobPosting] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<MatchAnalysisApiResponse | null>(null);
 
   useEffect(() => {
     setResumes(resumeStore.list());
@@ -78,6 +83,64 @@ const JobFit = () => {
     setResumes(resumeStore.list());
     if (selectedResumeId === id) setSelectedResumeId(undefined);
     toast.success("Resume removed");
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedResume) {
+      toast.error("Select or upload a resume first.");
+      return;
+    }
+    if (!jobPosting.trim()) {
+      toast.error("Paste a job posting first.");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const { experiences, projects, education, ...profileRest } = selectedResume.profile;
+      const primaryEdu = education[0];
+
+      const resp = await fetch(`${API_URL}/api/job/match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidate_profile: {
+            ...profileRest,
+            experiences: experiences.map(({ id: _id, ...rest }) => rest),
+            projects: projects.map(({ id: _id, ...rest }) => rest),
+            ...(primaryEdu?.programme && { programme: primaryEdu.programme }),
+            ...(primaryEdu?.university && { university: primaryEdu.university }),
+            ...(primaryEdu?.degree_year && { degree_year: primaryEdu.degree_year }),
+          },
+          job_posting: jobPosting,
+        }),
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        throw new Error(data.error || "Analysis failed, try again.");
+      }
+
+      const result = data as MatchAnalysisApiResponse;
+      setAnalysis(result);
+
+      const record: JobAnalysisRecord = {
+        ...result,
+        id: crypto.randomUUID(),
+        resume_id: selectedResume.id,
+        job_posting_text: jobPosting,
+        created_at: new Date().toISOString(),
+      };
+      jobAnalysisStore.save(record);
+
+      toast.success("Match analysis complete.");
+    } catch (err) {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Analysis failed");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -162,9 +225,32 @@ const JobFit = () => {
         </div>
 
         {selectedResume && (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Selected: <span className="font-medium text-foreground">{selectedResume.name}</span>
-          </p>
+          <div className="mt-4 flex flex-col gap-3">
+            <label className="text-sm font-medium text-foreground">Job Posting</label>
+            <Textarea
+              placeholder="Paste the full job posting here."
+              className="h-[220px] resize-none border-border bg-card font-body text-sm leading-relaxed placeholder:text-muted-foreground/60 focus-visible:ring-accent"
+              value={jobPosting}
+              onChange={(e) => setJobPosting(e.target.value)}
+            />
+            <Button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing || !jobPosting.trim()}
+              className="gap-3 self-start bg-accent text-accent-foreground hover:bg-accent/90 font-semibold h-12 rounded-xl"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing match...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Analyze
+                </>
+              )}
+            </Button>
+          </div>
         )}
       </main>
     </div>
