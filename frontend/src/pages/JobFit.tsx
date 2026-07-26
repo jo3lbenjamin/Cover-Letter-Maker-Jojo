@@ -10,6 +10,7 @@ import { buildProfileFromExtraction } from "@/lib/resumeFromExtraction";
 import { resumeStore, MAX_RESUMES } from "@/lib/resumeStore";
 import { jobAnalysisStore } from "@/lib/jobAnalysisStore";
 import { MatchResultsPanel } from "@/components/jobfit/MatchResultsPanel";
+import { OptimizeResumeDialog } from "@/components/jobfit/OptimizeResumeDialog";
 import type { ResumeRecord, MatchAnalysisApiResponse, JobAnalysisRecord } from "@/types/jobFit";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -22,6 +23,7 @@ const JobFit = () => {
   const [jobPosting, setJobPosting] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<MatchAnalysisApiResponse | null>(null);
+  const [analysisRecord, setAnalysisRecord] = useState<JobAnalysisRecord | null>(null);
 
   useEffect(() => {
     setResumes(resumeStore.list());
@@ -134,6 +136,7 @@ const JobFit = () => {
         created_at: new Date().toISOString(),
       };
       jobAnalysisStore.save(record);
+      setAnalysisRecord(record);
 
       toast.success("Match analysis complete.");
     } catch (err) {
@@ -254,9 +257,22 @@ const JobFit = () => {
           </div>
         )}
 
-        {analysis && (
+        {analysis && analysisRecord && selectedResume && (
           <div className="mt-6">
-            <MatchResultsPanel analysis={analysis} />
+            <MatchResultsPanel
+              analysis={analysis}
+              actions={
+                <OptimizeResumeDialog
+                  resume={selectedResume}
+                  analysis={analysis}
+                  analysisId={analysisRecord.id}
+                  onOptimized={(newResume) => {
+                    setResumes(resumeStore.list());
+                    setSelectedResumeId(newResume.id);
+                  }}
+                />
+              }
+            />
           </div>
         )}
       </main>
