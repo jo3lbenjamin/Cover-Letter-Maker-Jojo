@@ -135,7 +135,7 @@ const JobFit = () => {
                   onClick={() => setSelectedResumeId(r.id)}
                   className={`flex items-center justify-between gap-2 rounded-lg border p-3 text-left transition-colors ${
                     selectedResumeId === r.id
-                      ? "border-accent bg-accent/10"
+                      ? "border-accent/50 bg-accent/5"
                       : "border-border/60 bg-background hover:bg-muted/50"
                   }`}
                 >
