@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Loader2, FileText, Trash2, Sparkles } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, FileText, Trash2, Sparkles, FileEdit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -262,15 +262,28 @@ const JobFit = () => {
             <MatchResultsPanel
               analysis={analysis}
               actions={
-                <OptimizeResumeDialog
-                  resume={selectedResume}
-                  analysis={analysis}
-                  analysisId={analysisRecord.id}
-                  onOptimized={(newResume) => {
-                    setResumes(resumeStore.list());
-                    setSelectedResumeId(newResume.id);
-                  }}
-                />
+                <>
+                  <OptimizeResumeDialog
+                    resume={selectedResume}
+                    analysis={analysis}
+                    analysisId={analysisRecord.id}
+                    onOptimized={(newResume) => {
+                      setResumes(resumeStore.list());
+                      setSelectedResumeId(newResume.id);
+                    }}
+                  />
+                  <Button
+                    onClick={() =>
+                      navigate("/", {
+                        state: { profile: selectedResume.profile, jobPosting },
+                      })
+                    }
+                    className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+                  >
+                    <FileEdit className="h-4 w-4" />
+                    Generate Cover Letter
+                  </Button>
+                </>
               }
             />
           </div>

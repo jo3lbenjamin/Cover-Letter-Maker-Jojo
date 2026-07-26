@@ -5,7 +5,7 @@ import {
   Sun, Moon, Copy, FileDown, Edit3, Check, Link2, Wand2, Target,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +16,7 @@ import { HistoryPanel } from "@/components/HistoryPanel";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { InstructionsEditor } from "@/components/InstructionsEditor";
 import { loadHistory, saveToHistory, deleteFromHistory, updateHistoryItem, SavedCoverLetter } from "@/lib/history";
-import { loadProfile, isProfileComplete } from "@/lib/profile";
+import { loadProfile, saveProfile, isProfileComplete } from "@/lib/profile";
 import { loadInstructions } from "@/lib/instructions";
 import { loadDocuments } from "@/lib/documents";
 import { downloadCoverLetterPDF } from "@/lib/pdf";
@@ -54,6 +54,7 @@ function buildDefaultTitle(profileName: string, roleTitle?: string, company?: st
 const Index = () => {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mounted, setMounted] = useState(false);
 
   const [input, setInput] = useState("");
@@ -82,8 +83,24 @@ const Index = () => {
 
   useEffect(() => {
     setHistory(loadHistory());
-    setProfile(loadProfile());
     setInstructions(loadInstructions());
+
+    const handoffState = location.state as
+      | { profile?: CandidateProfile; jobPosting?: string }
+      | null;
+
+    if (handoffState?.profile) {
+      saveProfile(handoffState.profile);
+      setProfile(handoffState.profile);
+      if (handoffState.jobPosting) {
+        setJobPostingInput(handoffState.jobPosting, false);
+      }
+      toast.success("Loaded profile and job posting from Job Fit.");
+      navigate(".", { replace: true, state: null });
+    } else {
+      setProfile(loadProfile());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-parse job posting to highlight key requirements/keywords.
