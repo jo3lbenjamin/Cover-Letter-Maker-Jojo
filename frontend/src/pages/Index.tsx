@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import {
   Download, Sparkles, Loader2, History, User, Settings,
   AlertCircle, CheckCircle2, Pencil, Undo2, Redo2, Eraser,
-  Sun, Moon, Copy, FileDown, Edit3, Check, Link2, Wand2,
+  Sun, Moon, Copy, FileDown, Edit3, Check, Link2, Wand2, Target,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +53,7 @@ function buildDefaultTitle(profileName: string, roleTitle?: string, company?: st
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
 
   const [input, setInput] = useState("");
@@ -448,6 +450,15 @@ const Index = () => {
               ) : (
                 <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
               )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/job-fit")}
+              className="gap-2"
+            >
+              <Target className="h-4 w-4" />
+              Job Fit
             </Button>
             <Button
               variant="outline"
