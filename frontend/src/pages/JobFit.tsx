@@ -9,6 +9,7 @@ import { extractTextFromFile } from "@/lib/fileTextExtractor";
 import { buildProfileFromExtraction } from "@/lib/resumeFromExtraction";
 import { resumeStore, MAX_RESUMES } from "@/lib/resumeStore";
 import { jobAnalysisStore } from "@/lib/jobAnalysisStore";
+import { MatchResultsPanel } from "@/components/jobfit/MatchResultsPanel";
 import type { ResumeRecord, MatchAnalysisApiResponse, JobAnalysisRecord } from "@/types/jobFit";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -250,6 +251,12 @@ const JobFit = () => {
                 </>
               )}
             </Button>
+          </div>
+        )}
+
+        {analysis && (
+          <div className="mt-6">
+            <MatchResultsPanel analysis={analysis} />
           </div>
         )}
       </main>
