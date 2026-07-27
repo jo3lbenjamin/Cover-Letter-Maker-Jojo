@@ -133,3 +133,76 @@ export interface CoverLetterResponse {
   extracted_fields: ExtractedFields;
   quality_checks: QualityChecks;
 }
+
+// ── Job Fit: Match Analysis ────────────────────────────────────────
+
+export type RequirementCategory =
+  | "skills"
+  | "experience"
+  | "keywords"
+  | "education"
+  | "technologies";
+
+export interface CategorizedRequirement {
+  text: string;
+  category: RequirementCategory;
+}
+
+export interface CategorizedJobPosting extends ParsedJobPosting {
+  categorized_requirements: CategorizedRequirement[];
+}
+
+export interface CategoryScores {
+  skills: number;
+  experience: number;
+  keywords: number;
+  education: number;
+  technologies: number;
+}
+
+export interface CoverageResult {
+  matched_requirements: string[];
+  missing_requirements: string[];
+  category_scores: CategoryScores;
+  overall_score: number;
+}
+
+export interface MatchNarrative {
+  strengths: string[];
+  weaknesses: string[];
+  critical_missing_skills: string[];
+  estimated_ranking_band: string;
+}
+
+export const MatchAnalysisRequestSchema = z.object({
+  candidate_profile: CandidateProfileSchema,
+  job_posting: z.string().min(1, "Job posting is required"),
+});
+export type MatchAnalysisRequest = z.infer<typeof MatchAnalysisRequestSchema>;
+
+export interface MatchAnalysisResponse {
+  parsed_job: ParsedJobPosting;
+  overall_score: number;
+  category_scores: CategoryScores;
+  matched_requirements: string[];
+  missing_requirements: string[];
+  critical_missing_skills: string[];
+  strengths: string[];
+  weaknesses: string[];
+  estimated_ranking_band: string;
+}
+
+export const ResumeOptimizeRequestSchema = z.object({
+  candidate_profile: CandidateProfileSchema,
+  job_analysis: z.object({
+    matched_requirements: z.array(z.string()),
+    missing_requirements: z.array(z.string()),
+    critical_missing_skills: z.array(z.string()),
+    weaknesses: z.array(z.string()),
+  }),
+});
+export type ResumeOptimizeRequest = z.infer<typeof ResumeOptimizeRequestSchema>;
+
+export interface ResumeOptimizeResponse {
+  optimized_profile: CandidateProfile;
+}

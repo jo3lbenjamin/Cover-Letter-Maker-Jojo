@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { parseJobPosting } from "../services/jobParser.js";
 import { chatCompletion } from "../services/llm.js";
+import { MatchAnalysisRequestSchema } from "../types/index.js";
+import { analyzeMatch } from "../services/matchAnalyzer.js";
 
 const router = Router();
 
@@ -128,6 +130,27 @@ Rules:
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to research company context";
+    res.status(500).json({ error: message });
+  }
+});
+
+// POST /api/job/match
+router.post("/match", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const parsed = MatchAnalysisRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        error: "Invalid request body",
+        details: parsed.error.flatten().fieldErrors,
+      });
+      return;
+    }
+
+    const result = await analyzeMatch(parsed.data.candidate_profile, parsed.data.job_posting);
+    res.json(result);
+  } catch (err) {
+    console.error("Match analysis failed:", err);
+    const message = err instanceof Error ? err.message : "Match analysis failed";
     res.status(500).json({ error: message });
   }
 });

@@ -2,20 +2,26 @@ import { useState, useEffect } from "react";
 import {
   Download, Sparkles, Loader2, History, User, Settings,
   AlertCircle, CheckCircle2, Pencil, Undo2, Redo2, Eraser,
-  Sun, Moon, Copy, FileDown, Edit3, Check, Link2, Wand2,
+  Sun, Moon, Copy, FileDown, Edit3, Check, Link2, Wand2, Target,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { InstructionsEditor } from "@/components/InstructionsEditor";
 import { loadHistory, saveToHistory, deleteFromHistory, updateHistoryItem, SavedCoverLetter } from "@/lib/history";
-import { loadProfile, isProfileComplete } from "@/lib/profile";
+import { loadProfile, saveProfile, isProfileComplete } from "@/lib/profile";
 import { loadInstructions } from "@/lib/instructions";
 import { loadDocuments } from "@/lib/documents";
 import { downloadCoverLetterPDF } from "@/lib/pdf";
@@ -52,6 +58,8 @@ function buildDefaultTitle(profileName: string, roleTitle?: string, company?: st
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [mounted, setMounted] = useState(false);
 
   const [input, setInput] = useState("");
@@ -75,14 +83,45 @@ const Index = () => {
   const [profile, setProfile] = useState<CandidateProfile>(loadProfile);
   const [instructions, setInstructions] = useState<GenerationInstructions>(loadInstructions);
   const [qualityChecks, setQualityChecks] = useState<QualityChecks | null>(null);
+  const [pendingHandoff, setPendingHandoff] = useState<{
+    profile: CandidateProfile;
+    jobPosting?: string;
+  } | null>(null);
 
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     setHistory(loadHistory());
-    setProfile(loadProfile());
     setInstructions(loadInstructions());
+
+    const handoffState = location.state as
+      | { profile?: CandidateProfile; jobPosting?: string }
+      | null;
+
+    if (handoffState?.profile) {
+      setPendingHandoff({ profile: handoffState.profile, jobPosting: handoffState.jobPosting });
+    } else {
+      setProfile(loadProfile());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleConfirmHandoff = () => {
+    if (!pendingHandoff) return;
+    saveProfile(pendingHandoff.profile);
+    setProfile(pendingHandoff.profile);
+    if (pendingHandoff.jobPosting) {
+      setJobPostingInput(pendingHandoff.jobPosting, false);
+    }
+    toast.success("Loaded profile and job posting from Job Fit.");
+    setPendingHandoff(null);
+    navigate(".", { replace: true, state: null });
+  };
+
+  const handleCancelHandoff = () => {
+    setPendingHandoff(null);
+    navigate(".", { replace: true, state: null });
+  };
 
   // Auto-parse job posting to highlight key requirements/keywords.
   useEffect(() => {
@@ -452,6 +491,15 @@ const Index = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => navigate("/job-fit")}
+              className="gap-2"
+            >
+              <Target className="h-4 w-4" />
+              Job Fit
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setShowInstructions(true)}
               className="gap-2"
             >
@@ -802,6 +850,29 @@ const Index = () => {
         onOpenChange={setShowInstructions}
         onInstructionsSaved={setInstructions}
       />
+
+      <AlertDialog
+        open={!!pendingHandoff}
+        onOpenChange={(open) => { if (!open) handleCancelHandoff(); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Load resume from Job Fit?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace your currently saved profile with this resume's info.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmHandoff}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              Load resume
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
