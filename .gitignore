@@ -39,3 +39,8 @@ backend/test-uploads/
 
 # Lock files (keep package-lock.json, ignore bun)
 bun.lockb
+
+# Agent/tooling directories
+.agents/
+.claude/
+.superpowers/
