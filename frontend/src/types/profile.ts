@@ -92,6 +92,11 @@ export interface CoverLetterApiRequest {
   document_ids?: string[];
   document_texts?: Array<{ filename: string; text: string }>;
   system_prompt?: string;
+  match_context?: {
+    missing_requirements: string[];
+    critical_missing_skills: string[];
+    weaknesses: string[];
+  };
 }
 
 export interface ExtractedFields {
