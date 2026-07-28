@@ -137,7 +137,7 @@ export function JobFitPanel({
 
       <Button
         onClick={onAnalyze}
-        disabled={isAnalyzing || !jobPosting.trim() || !profileReady}
+        disabled={isAnalyzing || !jobPosting.trim()}
         className="h-11 shrink-0 gap-2 font-semibold"
       >
         {isAnalyzing ? (

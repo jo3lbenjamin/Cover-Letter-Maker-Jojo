@@ -19,10 +19,9 @@ function scoreBadgeClass(score: number): string {
 
 interface MatchResultsPanelProps {
   analysis: MatchAnalysisApiResponse;
-  actions?: React.ReactNode;
 }
 
-export function MatchResultsPanel({ analysis, actions }: MatchResultsPanelProps) {
+export function MatchResultsPanel({ analysis }: MatchResultsPanelProps) {
   const isHighMatch = analysis.overall_score >= 90;
   const totalRequirements =
     analysis.matched_requirements.length + analysis.missing_requirements.length;
@@ -128,8 +127,6 @@ export function MatchResultsPanel({ analysis, actions }: MatchResultsPanelProps)
           </ul>
         </div>
       )}
-
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
   );
 }

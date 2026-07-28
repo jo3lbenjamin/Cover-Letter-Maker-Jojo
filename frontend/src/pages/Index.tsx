@@ -50,6 +50,7 @@ const Index = () => {
   const [inputHistory, setInputHistory] = useState<string[]>([""]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [matchAnalysis, setMatchAnalysis] = useState<MatchAnalysisApiResponse | null>(null);
+  const [analyzedJobPosting, setAnalyzedJobPosting] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [letterTitle, setLetterTitle] = useState("");
@@ -117,6 +118,7 @@ const Index = () => {
   }, [isGenerating]);
 
   const profileReady = isProfileComplete(profile);
+  const analysisIsCurrent = Boolean(matchAnalysis) && analyzedJobPosting === input;
 
   const setJobPostingInput = (nextValue: string, recordHistory = true) => {
     setInput(nextValue);
@@ -245,6 +247,7 @@ const Index = () => {
       }
 
       setMatchAnalysis(data as MatchAnalysisApiResponse);
+      setAnalyzedJobPosting(input);
       toast.success("Match analysis complete.");
     } catch (err) {
       console.error(err);
@@ -272,18 +275,13 @@ const Index = () => {
     setIsEditingLetter(false);
 
     try {
-      const apiProfile = toApiCandidateProfile(profile);
-      const cleanProfile = Object.fromEntries(
-        Object.entries(apiProfile).map(([k, v]) => [k, typeof v === "string" && v.trim() === "" ? undefined : v])
-      );
-
       const docs = loadDocuments();
       const documentTexts = docs
         .filter((d) => d.extracted_text)
         .map((d) => ({ filename: d.filename, text: d.extracted_text }));
 
       const body: CoverLetterApiRequest = {
-        candidate_profile: cleanProfile as CoverLetterApiRequest["candidate_profile"],
+        candidate_profile: toApiCandidateProfile(profile),
         job_posting: input,
         ...(instructions.company_context && { company_context: instructions.company_context }),
         ...(instructions.tone && { tone: instructions.tone }),
@@ -296,7 +294,7 @@ const Index = () => {
         ...(instructions.date && { date: instructions.date }),
         ...(instructions.system_prompt && { system_prompt: instructions.system_prompt }),
         ...(documentTexts.length > 0 && { document_texts: documentTexts }),
-        ...(matchAnalysis && {
+        ...(analysisIsCurrent && matchAnalysis && {
           match_context: {
             missing_requirements: matchAnalysis.missing_requirements,
             critical_missing_skills: matchAnalysis.critical_missing_skills,
@@ -499,13 +497,13 @@ const Index = () => {
               jobInsights={jobInsights}
               onResearchCompany={handleResearchCompany}
               isResearchingCompany={isResearchingCompany}
-              analysis={matchAnalysis}
+              analysis={analysisIsCurrent ? matchAnalysis : null}
               isAnalyzing={isAnalyzing}
               onAnalyze={handleAnalyzeMatch}
             />
 
             <CoverLetterPanel
-              canGenerate={Boolean(input.trim()) && profileReady}
+              canGenerate={Boolean(input.trim())}
               isGenerating={isGenerating}
               loadingMessage={LOADING_MESSAGES[loadingStep]}
               onGenerate={handleGenerate}
