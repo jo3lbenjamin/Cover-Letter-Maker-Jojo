@@ -198,18 +198,3 @@ export interface MatchAnalysisResponse {
   weaknesses: string[];
   estimated_ranking_band: string;
 }
-
-export const ResumeOptimizeRequestSchema = z.object({
-  candidate_profile: CandidateProfileSchema,
-  job_analysis: z.object({
-    matched_requirements: z.array(z.string()),
-    missing_requirements: z.array(z.string()),
-    critical_missing_skills: z.array(z.string()),
-    weaknesses: z.array(z.string()),
-  }),
-});
-export type ResumeOptimizeRequest = z.infer<typeof ResumeOptimizeRequestSchema>;
-
-export interface ResumeOptimizeResponse {
-  optimized_profile: CandidateProfile;
-}

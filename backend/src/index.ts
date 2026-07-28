@@ -5,7 +5,6 @@ import documentsRouter from "./routes/documents.js";
 import coverLetterRouter from "./routes/coverLetter.js";
 import profileRouter from "./routes/profile.js";
 import jobRouter from "./routes/job.js";
-import resumeRouter from "./routes/resume.js";
 import { COVER_LETTER_SYSTEM_PROMPT } from "./prompts/coverLetter.js";
 
 const app = express();
@@ -17,7 +16,6 @@ app.use("/api/documents", documentsRouter);
 app.use("/api/cover-letter", coverLetterRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/job", jobRouter);
-app.use("/api/resume", resumeRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({
