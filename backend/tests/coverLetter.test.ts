@@ -207,4 +207,25 @@ describe("Cover Letter Generation", () => {
 
     expect(result.extracted_fields.used_documents).toContain("resume.pdf");
   });
+
+  it("includes match analysis gaps in the generation prompt when match_context is provided", async () => {
+    mockedChat
+      .mockResolvedValueOnce(MOCK_PARSED_JOB_RESPONSE)
+      .mockResolvedValueOnce(MOCK_COVER_LETTER);
+
+    await generateCoverLetter(
+      makeRequest({
+        match_context: {
+          missing_requirements: ["AWS certification"],
+          critical_missing_skills: ["Kubernetes"],
+          weaknesses: ["No fintech experience"],
+        },
+      })
+    );
+
+    const secondCallUserPrompt = mockedChat.mock.calls[1][1] as string;
+    expect(secondCallUserPrompt).toContain("AWS certification");
+    expect(secondCallUserPrompt).toContain("Kubernetes");
+    expect(secondCallUserPrompt).toContain("No fintech experience");
+  });
 });

@@ -51,6 +51,11 @@ export function buildCoverLetterUserPrompt(params: {
   recipientLocation?: string;
   date: string;
   documentContext?: string;
+  matchContext?: {
+    missingRequirements: string[];
+    criticalMissingSkills: string[];
+    weaknesses: string[];
+  };
 }): string {
   const {
     profile,
@@ -66,6 +71,7 @@ export function buildCoverLetterUserPrompt(params: {
     recipientLocation,
     date,
     documentContext,
+    matchContext,
   } = params;
 
   let prompt = `CANDIDATE PROFILE:
@@ -122,6 +128,25 @@ Keywords: ${parsedJob.keywords.join(", ")}`;
 
   if (documentContext) {
     prompt += `\n\nUPLOADED DOCUMENTS (use as additional factual source only):\n${documentContext}`;
+  }
+
+  if (
+    matchContext &&
+    (matchContext.missingRequirements.length ||
+      matchContext.criticalMissingSkills.length ||
+      matchContext.weaknesses.length)
+  ) {
+    prompt += `\n\nJOB FIT GAPS TO ADDRESS (from an automated match analysis of this candidate against this job):`;
+    if (matchContext.missingRequirements.length) {
+      prompt += `\nMissing requirements: ${matchContext.missingRequirements.join("; ")}`;
+    }
+    if (matchContext.criticalMissingSkills.length) {
+      prompt += `\nCritical missing skills: ${matchContext.criticalMissingSkills.join(", ")}`;
+    }
+    if (matchContext.weaknesses.length) {
+      prompt += `\nResume weaknesses: ${matchContext.weaknesses.join("; ")}`;
+    }
+    prompt += `\nWhere truthful and supported by the candidate profile above, reframe relevant experience to address these gaps. Do not fabricate skills or experience the candidate does not have.`;
   }
 
   prompt += `\n\nFORMATTING INSTRUCTIONS:

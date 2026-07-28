@@ -33,6 +33,7 @@ export async function generateCoverLetter(
     document_ids: documentIds,
     document_texts: documentTexts,
     system_prompt: customSystemPrompt,
+    match_context: matchContext,
   } = req;
 
   const availability =
@@ -76,6 +77,13 @@ export async function generateCoverLetter(
     recipientLocation,
     date,
     documentContext: documentContext || undefined,
+    matchContext: matchContext
+      ? {
+          missingRequirements: matchContext.missing_requirements,
+          criticalMissingSkills: matchContext.critical_missing_skills,
+          weaknesses: matchContext.weaknesses,
+        }
+      : undefined,
   });
 
   let coverLetterText = "";

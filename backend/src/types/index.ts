@@ -106,6 +106,13 @@ export const CoverLetterRequestSchema = z.object({
     .array(z.object({ filename: z.string(), text: z.string() }))
     .optional(),
   system_prompt: z.string().optional(),
+  match_context: z
+    .object({
+      missing_requirements: z.array(z.string()),
+      critical_missing_skills: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    })
+    .optional(),
 });
 
 export type CoverLetterRequest = z.infer<typeof CoverLetterRequestSchema>;
