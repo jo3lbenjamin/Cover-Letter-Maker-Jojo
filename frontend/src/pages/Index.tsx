@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { HistoryPanel } from "@/components/HistoryPanel";
 import { ProfileColumn } from "@/components/profile/ProfileColumn";
 import { InstructionsEditor } from "@/components/InstructionsEditor";
 import { DocumentsEditor } from "@/components/DocumentsEditor";
+import { HistorySheet } from "@/components/HistorySheet";
 import { IconRail } from "@/components/IconRail";
 import { JobFitPanel, type ParsedJobInsights } from "@/components/JobFitPanel";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
@@ -422,7 +422,7 @@ const Index = () => {
       <IconRail
         onOpenDocuments={() => setShowDocuments(true)}
         onOpenInstructions={() => setShowInstructions(true)}
-        onToggleHistory={() => setShowHistory((v) => !v)}
+        onOpenHistory={() => setShowHistory(true)}
         historyCount={history.length}
         historyActive={showHistory}
         mounted={mounted}
@@ -463,20 +463,7 @@ const Index = () => {
             <ProfileColumn profile={profile} onProfileChange={handleProfileChange} />
           </div>
 
-          <div className={`grid gap-5 md:flex-1 md:min-h-0 ${showHistory ? "lg:grid-cols-[280px_1fr_1fr]" : "lg:grid-cols-2"}`}>
-            {showHistory && (
-              <div className="rounded-xl border border-border/50 bg-card p-4">
-                <h3 className="mb-3 flex items-center gap-2 text-heading text-foreground">Saved Letters</h3>
-                <HistoryPanel
-                  history={history}
-                  onSelect={handleSelectHistory}
-                  onDelete={handleDeleteHistory}
-                  activeId={activeId}
-                  onHistoryUpdated={handleHistoryUpdated}
-                />
-              </div>
-            )}
-
+          <div className="grid gap-5 md:flex-1 md:min-h-0 lg:grid-cols-2">
             <JobFitPanel
               profile={profile}
               profileReady={profileReady}
@@ -529,6 +516,15 @@ const Index = () => {
 
       <InstructionsEditor open={showInstructions} onOpenChange={setShowInstructions} onInstructionsSaved={setInstructions} />
       <DocumentsEditor open={showDocuments} onOpenChange={setShowDocuments} />
+      <HistorySheet
+        open={showHistory}
+        onOpenChange={setShowHistory}
+        history={history}
+        onSelect={handleSelectHistory}
+        onDelete={handleDeleteHistory}
+        activeId={activeId}
+        onHistoryUpdated={handleHistoryUpdated}
+      />
     </div>
   );
 };

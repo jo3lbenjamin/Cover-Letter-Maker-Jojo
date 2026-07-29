@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 interface IconRailProps {
   onOpenDocuments: () => void;
   onOpenInstructions: () => void;
-  onToggleHistory: () => void;
+  onOpenHistory: () => void;
   historyCount: number;
   historyActive: boolean;
   mounted: boolean;
@@ -16,7 +16,7 @@ interface IconRailProps {
 export function IconRail({
   onOpenDocuments,
   onOpenInstructions,
-  onToggleHistory,
+  onOpenHistory,
   historyCount,
   historyActive,
   mounted,
@@ -41,7 +41,7 @@ export function IconRail({
           <Button
             variant={historyActive ? "secondary" : "ghost"}
             size="icon"
-            onClick={onToggleHistory}
+            onClick={onOpenHistory}
             className="relative h-10 w-10"
           >
             <History className="h-4 w-4" />
