@@ -33,12 +33,15 @@ describe("ExperienceSection", () => {
     ]);
   });
 
-  it("removes an entry via its remove button in edit mode", () => {
+  it("removes an entry via its remove button in edit mode after confirming", async () => {
     const onChange = vi.fn();
     render(<ExperienceSection experiences={[exp]} onChange={onChange} />);
 
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     fireEvent.click(screen.getByRole("button", { name: /remove experience/i }));
+
+    const confirmButton = await screen.findByRole("button", { name: /yes, delete/i });
+    fireEvent.click(confirmButton);
 
     expect(onChange).toHaveBeenCalledWith([]);
   });

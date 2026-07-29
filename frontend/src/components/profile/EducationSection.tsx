@@ -1,7 +1,14 @@
+import { useState } from "react";
 import { GraduationCap, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type { Education } from "@/types/profile";
 import { ProfileSummarySection } from "./ProfileSummarySection";
 
@@ -11,6 +18,8 @@ interface EducationSectionProps {
 }
 
 export function EducationSection({ education, onChange }: EducationSectionProps) {
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
   const addEducation = () => {
     onChange([...education, { id: crypto.randomUUID(), programme: "", university: "", degree_year: "" }]);
   };
@@ -19,11 +28,15 @@ export function EducationSection({ education, onChange }: EducationSectionProps)
     onChange(education.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
   };
 
-  const removeEducation = (id: string) => {
-    onChange(education.filter((e) => e.id !== id));
+  const confirmRemoveEducation = () => {
+    if (!pendingDeleteId) return;
+    onChange(education.filter((e) => e.id !== pendingDeleteId));
+    toast.success("Education entry removed.");
+    setPendingDeleteId(null);
   };
 
   return (
+    <>
     <ProfileSummarySection
       title="Education"
       icon={<GraduationCap className="h-4 w-4 text-muted-foreground" />}
@@ -50,7 +63,7 @@ export function EducationSection({ education, onChange }: EducationSectionProps)
             <div key={edu.id} className="rounded-lg border border-border p-3 space-y-2 relative">
               <button
                 aria-label="remove education entry"
-                onClick={() => removeEducation(edu.id)}
+                onClick={() => setPendingDeleteId(edu.id)}
                 className="absolute top-2 right-2 rounded-full p-1 hover:bg-destructive/10 text-destructive"
               >
                 <X className="h-3.5 w-3.5" />
@@ -74,5 +87,25 @@ export function EducationSection({ education, onChange }: EducationSectionProps)
         </div>
       )}
     />
+    <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove this education entry?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently remove this entry. Once deleted, it cannot be recovered.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmRemoveEducation}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Yes, delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

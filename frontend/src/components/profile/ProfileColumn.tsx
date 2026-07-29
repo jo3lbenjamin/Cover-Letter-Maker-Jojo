@@ -1,12 +1,17 @@
-import { useRef, useState } from "react";
-import { User, Upload, Loader2, CheckCircle2 } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { User, Upload, Loader2, CheckCircle2, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { CandidateProfile, Experience, Project } from "@/types/profile";
-import { isProfileComplete } from "@/lib/profile";
+import { DEFAULT_PROFILE, isProfileComplete } from "@/lib/profile";
 import { addDocument } from "@/lib/documents";
 import { extractTextFromFile } from "@/lib/fileTextExtractor";
 import { SkillsSection } from "./SkillsSection";
@@ -23,11 +28,24 @@ interface ProfileColumnProps {
 
 export function ProfileColumn({ profile, onProfileChange }: ProfileColumnProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const complete = isProfileComplete(profile);
+  const uid = useId();
+
+  const profileRef = useRef(profile);
+  useEffect(() => {
+    profileRef.current = profile;
+  });
 
   const update = <K extends keyof CandidateProfile>(key: K, value: CandidateProfile[K]) => {
     onProfileChange({ ...profile, [key]: value });
+  };
+
+  const handleResetProfile = () => {
+    onProfileChange({ ...DEFAULT_PROFILE });
+    toast.success("Profile has been reset to blank.");
+    setShowResetConfirm(false);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +77,8 @@ export function ProfileColumn({ profile, onProfileChange }: ProfileColumnProps) 
       }
 
       const extracted = await extractResp.json();
-      const newEducation = [...profile.education];
+      const currentProfile = profileRef.current;
+      const newEducation = [...currentProfile.education];
       if (extracted.programme || extracted.university || extracted.degree_year) {
         const hasMatch = newEducation.some(
           (e) => e.programme === extracted.programme && e.university === extracted.university
@@ -73,31 +92,31 @@ export function ProfileColumn({ profile, onProfileChange }: ProfileColumnProps) 
       }
 
       onProfileChange({
-        ...profile,
-        name: extracted.name || profile.name,
-        email: extracted.email || profile.email,
-        phone: extracted.phone || profile.phone,
-        location: extracted.location || profile.location,
-        linkedin_url: extracted.linkedin_url || profile.linkedin_url,
-        website_url: extracted.website_url || profile.website_url,
+        ...currentProfile,
+        name: extracted.name || currentProfile.name,
+        email: extracted.email || currentProfile.email,
+        phone: extracted.phone || currentProfile.phone,
+        location: extracted.location || currentProfile.location,
+        linkedin_url: extracted.linkedin_url || currentProfile.linkedin_url,
+        website_url: extracted.website_url || currentProfile.website_url,
         education: newEducation,
-        skills: extracted.skills?.length ? [...new Set([...profile.skills, ...extracted.skills])] : profile.skills,
+        skills: extracted.skills?.length ? [...new Set([...currentProfile.skills, ...extracted.skills])] : currentProfile.skills,
         experiences: extracted.experiences?.length
           ? [
-              ...profile.experiences,
+              ...currentProfile.experiences,
               ...extracted.experiences
-                .filter((exp: Omit<Experience, "id">) => !profile.experiences.some((e) => e.title === exp.title && e.company === exp.company))
+                .filter((exp: Omit<Experience, "id">) => !currentProfile.experiences.some((e) => e.title === exp.title && e.company === exp.company))
                 .map((exp: Omit<Experience, "id">) => ({ ...exp, id: crypto.randomUUID() })),
             ]
-          : profile.experiences,
+          : currentProfile.experiences,
         projects: extracted.projects?.length
           ? [
-              ...profile.projects,
+              ...currentProfile.projects,
               ...extracted.projects
-                .filter((proj: Omit<Project, "id">) => !profile.projects.some((p) => p.name === proj.name))
+                .filter((proj: Omit<Project, "id">) => !currentProfile.projects.some((p) => p.name === proj.name))
                 .map((proj: Omit<Project, "id">) => ({ ...proj, id: crypto.randomUUID() })),
             ]
-          : profile.projects,
+          : currentProfile.projects,
       });
 
       toast.success("Profile updated from your document!");
@@ -142,31 +161,62 @@ export function ProfileColumn({ profile, onProfileChange }: ProfileColumnProps) 
           <h3 className="text-heading text-foreground flex items-center gap-2">
             <User className="h-4 w-4 text-muted-foreground" /> Personal Information
           </h3>
-          {complete ? (
-            <CheckCircle2 data-testid="profile-completeness-check" className="h-4 w-4 text-green-600" />
-          ) : (
-            <div data-testid="profile-completeness-dot" className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
-          )}
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-caption text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setShowResetConfirm(true)}
+            >
+              <RotateCcw className="h-3 w-3" /> Reset
+            </Button>
+            {complete ? (
+              <CheckCircle2 data-testid="profile-completeness-check" className="h-4 w-4 text-green-600" />
+            ) : (
+              <div data-testid="profile-completeness-dot" className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
+            )}
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
-            <Label htmlFor="name">Full Name *</Label>
-            <Input id="name" value={profile.name} onChange={(e) => update("name", e.target.value)} placeholder="Jane Doe" />
+            <Label htmlFor={`${uid}-name`}>Full Name *</Label>
+            <Input id={`${uid}-name`} value={profile.name} onChange={(e) => update("name", e.target.value)} placeholder="Jane Doe" />
           </div>
           <div>
-            <Label htmlFor="email">Email *</Label>
-            <Input id="email" type="email" value={profile.email} onChange={(e) => update("email", e.target.value)} placeholder="jane@example.com" />
+            <Label htmlFor={`${uid}-email`}>Email *</Label>
+            <Input id={`${uid}-email`} type="email" value={profile.email} onChange={(e) => update("email", e.target.value)} placeholder="jane@example.com" />
           </div>
           <div>
-            <Label htmlFor="phone">Phone *</Label>
-            <Input id="phone" value={profile.phone} onChange={(e) => update("phone", e.target.value)} placeholder="(416) 555 0199" />
+            <Label htmlFor={`${uid}-phone`}>Phone *</Label>
+            <Input id={`${uid}-phone`} value={profile.phone} onChange={(e) => update("phone", e.target.value)} placeholder="(416) 555 0199" />
           </div>
           <div className="col-span-2">
-            <Label htmlFor="location">Location *</Label>
-            <Input id="location" value={profile.location} onChange={(e) => update("location", e.target.value)} placeholder="Toronto, Ontario" />
+            <Label htmlFor={`${uid}-location`}>Location *</Label>
+            <Input id={`${uid}-location`} value={profile.location} onChange={(e) => update("location", e.target.value)} placeholder="Toronto, Ontario" />
           </div>
         </div>
       </section>
+
+      <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset entire profile?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all your profile data including personal info, education, skills, experiences, and projects. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleResetProfile}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Yes, reset everything
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Separator />
 

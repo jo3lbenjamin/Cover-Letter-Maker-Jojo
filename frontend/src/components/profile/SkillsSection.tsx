@@ -4,12 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProfileSummarySection } from "./ProfileSummarySection";
-
-const SKILL_SUGGESTIONS = [
-  "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", "Ruby",
-  "React", "Next.js", "Vue.js", "Node.js", "SQL", "AWS", "Docker", "Kubernetes",
-  "Git", "TensorFlow", "PyTorch", "GraphQL", "REST API",
-];
+import { SKILL_SUGGESTIONS } from "@/lib/skillSuggestions";
 
 interface SkillsSectionProps {
   skills: string[];

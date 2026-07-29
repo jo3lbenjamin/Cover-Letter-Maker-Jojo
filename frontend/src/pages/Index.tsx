@@ -528,7 +528,7 @@ const Index = () => {
             <div className="hidden lg:block rounded-xl border border-border/50 bg-card p-4 overflow-y-auto">
               <ProfileColumn profile={profile} onProfileChange={handleProfileChange} />
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden lg:block overflow-y-auto min-h-0">
               <JobFitPanel
                 profile={profile}
                 profileReady={profileReady}
@@ -551,7 +551,7 @@ const Index = () => {
                 onAnalyze={handleAnalyzeMatch}
               />
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden lg:block overflow-y-auto min-h-0">
               <CoverLetterPanel
                 canGenerate={Boolean(input.trim())}
                 isGenerating={isGenerating}

@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type { Experience } from "@/types/profile";
 import { ProfileSummarySection } from "./ProfileSummarySection";
 
@@ -14,6 +20,7 @@ interface ExperienceSectionProps {
 
 export function ExperienceSection({ experiences, onChange }: ExperienceSectionProps) {
   const [rawOutcomeInputs, setRawOutcomeInputs] = useState<Record<string, string>>({});
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const addExperience = () => {
     onChange([...experiences, {
@@ -25,11 +32,15 @@ export function ExperienceSection({ experiences, onChange }: ExperienceSectionPr
     onChange(experiences.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
   };
 
-  const removeExperience = (id: string) => {
-    onChange(experiences.filter((e) => e.id !== id));
+  const confirmRemoveExperience = () => {
+    if (!pendingDeleteId) return;
+    onChange(experiences.filter((e) => e.id !== pendingDeleteId));
+    toast.success("Experience entry removed.");
+    setPendingDeleteId(null);
   };
 
   return (
+    <>
     <ProfileSummarySection
       title="Experience"
       icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
@@ -55,7 +66,7 @@ export function ExperienceSection({ experiences, onChange }: ExperienceSectionPr
             <div key={exp.id} className="rounded-lg border border-border p-4 space-y-3 relative">
               <button
                 aria-label="remove experience entry"
-                onClick={() => removeExperience(exp.id)}
+                onClick={() => setPendingDeleteId(exp.id)}
                 className="absolute top-3 right-3 rounded-full p-1 hover:bg-destructive/10 text-destructive"
               >
                 <X className="h-3.5 w-3.5" />
@@ -106,5 +117,25 @@ export function ExperienceSection({ experiences, onChange }: ExperienceSectionPr
         </div>
       )}
     />
+    <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove this experience entry?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently remove this entry. Once deleted, it cannot be recovered.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmRemoveExperience}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Yes, delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

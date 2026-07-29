@@ -45,4 +45,31 @@ describe("ProfileColumn", () => {
     expect(screen.getByText("Education")).toBeInTheDocument();
     expect(screen.getByText("Projects")).toBeInTheDocument();
   });
+
+  it("resets the profile to blank after confirming in the Reset dialog", async () => {
+    const onProfileChange = vi.fn();
+    const filled: CandidateProfile = {
+      ...DEFAULT_PROFILE, name: "Jane Doe", email: "jane@example.com", phone: "555-0100", location: "Toronto",
+    };
+    render(<ProfileColumn profile={filled} onProfileChange={onProfileChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
+    const confirmButton = await screen.findByRole("button", { name: /yes, reset everything/i });
+    fireEvent.click(confirmButton);
+
+    expect(onProfileChange).toHaveBeenCalledWith({ ...DEFAULT_PROFILE });
+  });
+
+  it("does not reset the profile when the Reset dialog is cancelled", () => {
+    const onProfileChange = vi.fn();
+    const filled: CandidateProfile = {
+      ...DEFAULT_PROFILE, name: "Jane Doe", email: "jane@example.com", phone: "555-0100", location: "Toronto",
+    };
+    render(<ProfileColumn profile={filled} onProfileChange={onProfileChange} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+
+    expect(onProfileChange).not.toHaveBeenCalled();
+  });
 });

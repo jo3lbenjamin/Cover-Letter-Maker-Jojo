@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type { Project } from "@/types/profile";
 import { ProfileSummarySection } from "./ProfileSummarySection";
 
@@ -15,6 +21,7 @@ interface ProjectsSectionProps {
 export function ProjectsSection({ projects, onChange }: ProjectsSectionProps) {
   const [rawTechInputs, setRawTechInputs] = useState<Record<string, string>>({});
   const [rawOutcomeInputs, setRawOutcomeInputs] = useState<Record<string, string>>({});
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const addProject = () => {
     onChange([...projects, { id: crypto.randomUUID(), name: "", description: "", technologies: [], outcomes: [] }]);
@@ -24,11 +31,15 @@ export function ProjectsSection({ projects, onChange }: ProjectsSectionProps) {
     onChange(projects.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
-  const removeProject = (id: string) => {
-    onChange(projects.filter((p) => p.id !== id));
+  const confirmRemoveProject = () => {
+    if (!pendingDeleteId) return;
+    onChange(projects.filter((p) => p.id !== pendingDeleteId));
+    toast.success("Project entry removed.");
+    setPendingDeleteId(null);
   };
 
   return (
+    <>
     <ProfileSummarySection
       title="Projects"
       icon={<FolderOpen className="h-4 w-4 text-muted-foreground" />}
@@ -52,7 +63,7 @@ export function ProjectsSection({ projects, onChange }: ProjectsSectionProps) {
             <div key={proj.id} className="rounded-lg border border-border p-4 space-y-3 relative">
               <button
                 aria-label="remove project entry"
-                onClick={() => removeProject(proj.id)}
+                onClick={() => setPendingDeleteId(proj.id)}
                 className="absolute top-3 right-3 rounded-full p-1 hover:bg-destructive/10 text-destructive"
               >
                 <X className="h-3.5 w-3.5" />
@@ -102,5 +113,25 @@ export function ProjectsSection({ projects, onChange }: ProjectsSectionProps) {
         </div>
       )}
     />
+    <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove this project entry?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently remove this entry. Once deleted, it cannot be recovered.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmRemoveProject}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Yes, delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
