@@ -427,7 +427,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
             </SheetTitle>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-caption text-destructive hover:text-destructive hover:bg-destructive/10">
                   <RotateCcw className="h-3.5 w-3.5" />
                   Reset
                 </Button>
@@ -481,7 +481,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                 </>
               )}
             </Button>
-            <p className="text-xs text-muted-foreground mt-1.5 text-center">
+            <p className="text-caption text-muted-foreground mt-1.5 text-center">
               Supports PDF, DOCX, and TXT. Existing fields won't be overwritten if already filled.
             </p>
           </div>
@@ -491,7 +491,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
           <div className="space-y-6 pb-6">
             {/* ── Personal Info ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-heading text-foreground mb-3 flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 Personal Information
               </h3>
@@ -532,11 +532,11 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
             {/* ── Education ── */}
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading text-foreground flex items-center gap-2">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
                   Education
                 </h3>
-                <Button variant="outline" size="sm" onClick={addEducation} className="gap-1 text-xs">
+                <Button variant="outline" size="sm" onClick={addEducation} className="gap-1 text-caption">
                   <Plus className="h-3 w-3" /> Add
                 </Button>
               </div>
@@ -567,7 +567,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   </div>
                 ))}
                 {profile.education.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">No education added yet. Click + to add.</p>
+                  <p className="text-caption text-muted-foreground text-center py-4">No education added yet. Click + to add.</p>
                 )}
               </div>
             </section>
@@ -576,7 +576,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
 
             {/* ── Skills ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-heading text-foreground mb-3 flex items-center gap-2">
                 <Wrench className="h-4 w-4 text-muted-foreground" />
                 Skills
               </h3>
@@ -620,7 +620,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   </Badge>
                 ))}
                 {profile.skills.length === 0 && (
-                  <p className="text-xs text-muted-foreground">No skills added yet.</p>
+                  <p className="text-caption text-muted-foreground">No skills added yet.</p>
                 )}
               </div>
             </section>
@@ -630,11 +630,11 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
             {/* ── Experiences ── */}
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading text-foreground flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
                   Experiences
                 </h3>
-                <Button variant="outline" size="sm" onClick={addExperience} className="gap-1 text-xs">
+                <Button variant="outline" size="sm" onClick={addExperience} className="gap-1 text-caption">
                   <Plus className="h-3 w-3" /> Add
                 </Button>
               </div>
@@ -692,7 +692,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   </div>
                 ))}
                 {profile.experiences.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">No experiences added yet.</p>
+                  <p className="text-caption text-muted-foreground text-center py-4">No experiences added yet.</p>
                 )}
               </div>
             </section>
@@ -702,11 +702,11 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
             {/* ── Projects ── */}
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading text-foreground flex items-center gap-2">
                   <FolderOpen className="h-4 w-4 text-muted-foreground" />
                   Projects
                 </h3>
-                <Button variant="outline" size="sm" onClick={addProject} className="gap-1 text-xs">
+                <Button variant="outline" size="sm" onClick={addProject} className="gap-1 text-caption">
                   <Plus className="h-3 w-3" /> Add
                 </Button>
               </div>
@@ -765,7 +765,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   </div>
                 ))}
                 {profile.projects.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">No projects added yet.</p>
+                  <p className="text-caption text-muted-foreground text-center py-4">No projects added yet.</p>
                 )}
               </div>
             </section>
@@ -775,7 +775,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
             {/* ── Document Library ── */}
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <h3 className="text-heading text-foreground flex items-center gap-2">
                   <FileUp className="h-4 w-4 text-muted-foreground" />
                   My Documents
                 </h3>
@@ -791,7 +791,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   size="sm"
                   onClick={() => docFileInputRef.current?.click()}
                   disabled={isUploadingDoc}
-                  className="gap-1 text-xs"
+                  className="gap-1 text-caption"
                 >
                   {isUploadingDoc ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -801,7 +801,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   Upload
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-caption text-muted-foreground mb-3">
                 Upload portfolios, website PDFs, transcripts, or any supporting documents. The AI will use these as reference when writing your cover letters.
               </p>
               <div className="space-y-2">
@@ -814,7 +814,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                       <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <div className="min-w-0">
                         <p className="text-sm truncate">{doc.filename}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-caption text-muted-foreground">
                           {doc.document_type} &middot; {new Date(doc.uploadedAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -830,7 +830,7 @@ export function ProfileEditor({ open, onOpenChange, onProfileSaved }: ProfileEdi
                   </div>
                 ))}
                 {documents.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">
+                  <p className="text-caption text-muted-foreground text-center py-4">
                     No documents uploaded yet. Add resumes, portfolios, or other references.
                   </p>
                 )}

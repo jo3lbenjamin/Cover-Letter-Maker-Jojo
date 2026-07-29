@@ -92,13 +92,13 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
             {/* ── System Prompt ── */}
             <section>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold text-foreground">AI System Prompt</h3>
+                <h3 className="text-heading text-foreground">AI System Prompt</h3>
                 <div className="flex gap-1.5">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPrompt(!showPrompt)}
-                    className="gap-1.5 text-xs h-7"
+                    className="gap-1.5 text-caption h-7"
                   >
                     {showPrompt ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     {showPrompt ? "Hide" : "View / Edit"}
@@ -108,7 +108,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
                       variant="ghost"
                       size="sm"
                       onClick={handleResetPrompt}
-                      className="gap-1.5 text-xs h-7 text-muted-foreground"
+                      className="gap-1.5 text-caption h-7 text-muted-foreground"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                       Reset
@@ -116,7 +116,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
                   )}
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-caption text-muted-foreground mb-3">
                 This is the system prompt that controls how the AI writes your cover letter. You can view it and customize it.
                 {instructions.system_prompt ? " You have a custom prompt saved." : " Currently using the default prompt."}
               </p>
@@ -125,10 +125,10 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
                   <Textarea
                     value={displayedPrompt}
                     onChange={(e) => update("system_prompt", e.target.value)}
-                    className="min-h-[280px] resize-y text-xs font-mono leading-relaxed bg-muted/50"
+                    className="min-h-[280px] resize-y text-code bg-muted/50"
                     placeholder="Loading default prompt..."
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-caption text-muted-foreground">
                     Edit above to customize. Leave blank or click Reset to revert to the default prompt.
                   </p>
                 </div>
@@ -139,7 +139,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
 
             {/* ── Tone ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Writing Tone</h3>
+              <h3 className="text-heading text-foreground mb-3">Writing Tone</h3>
               <div>
                 <Label htmlFor="inst-tone">Preferred tone style</Label>
                 <Select
@@ -157,7 +157,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
                     <SelectItem value="technical">Technical</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-caption text-muted-foreground mt-1">
                   This influences style and voice while keeping facts and format constraints.
                 </p>
               </div>
@@ -167,7 +167,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
 
             {/* ── Availability Override ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Availability</h3>
+              <h3 className="text-heading text-foreground mb-3">Availability</h3>
               <div>
                 <Label htmlFor="inst-availability">Override availability (leave blank to use profile default)</Label>
                 <Input
@@ -176,7 +176,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
                   onChange={(e) => update("availability", e.target.value)}
                   placeholder="1 June 2026"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-caption text-muted-foreground mt-1">
                   This overrides the default availability set in your profile for this generation.
                 </p>
               </div>
@@ -186,7 +186,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
 
             {/* ── Date Override ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Letter Date</h3>
+              <h3 className="text-heading text-foreground mb-3">Letter Date</h3>
               <div>
                 <Label htmlFor="inst-date">Custom date (leave blank for today)</Label>
                 <Input
@@ -202,8 +202,8 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
 
             {/* ── Recipient ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Recipient Details</h3>
-              <p className="text-xs text-muted-foreground mb-3">
+              <h3 className="text-heading text-foreground mb-3">Recipient Details</h3>
+              <p className="text-caption text-muted-foreground mb-3">
                 If left blank, the letter will be addressed to "Hiring Team" and the company will be extracted from the job posting.
               </p>
               <div className="space-y-3">
@@ -250,7 +250,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
 
             {/* ── Company Context ── */}
             <section>
-              <h3 className="text-sm font-semibold text-foreground mb-3">Company Context</h3>
+              <h3 className="text-heading text-foreground mb-3">Company Context</h3>
               <div>
                 <Label htmlFor="inst-company-context">Additional context about the company</Label>
                 <Textarea
@@ -260,7 +260,7 @@ export function InstructionsEditor({ open, onOpenChange, onInstructionsSaved }: 
                   placeholder="Acme Corp is a Series B fintech startup focused on democratizing access to financial tools for small businesses. They value speed, user empathy, and data driven decision making."
                   className="min-h-[100px] resize-none text-sm"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-caption text-muted-foreground mt-1">
                   Paste company info, mission statement, or culture notes. The AI will weave this into the closing paragraph.
                 </p>
               </div>

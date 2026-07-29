@@ -94,7 +94,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Clock className="mb-3 h-8 w-8 text-muted-foreground/30" />
         <p className="text-sm text-muted-foreground/60">No saved cover letters yet.</p>
-        <p className="mt-1 text-xs text-muted-foreground/40">Generated letters will appear here.</p>
+        <p className="mt-1 text-caption text-muted-foreground/40">Generated letters will appear here.</p>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
       <div className="flex items-center gap-1.5">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-7 gap-1 text-xs flex-1">
+            <Button variant="outline" size="sm" className="h-7 gap-1 text-caption flex-1">
               <Filter className="h-3 w-3" />
               {filterCollectionId
                 ? collections.find((c) => c.id === filterCollectionId)?.name || "All"
@@ -115,7 +115,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
           <PopoverContent className="w-56 p-2" align="start">
             <button
               onClick={() => setFilterCollectionId(null)}
-              className={`w-full rounded px-2 py-1.5 text-left text-xs hover:bg-muted ${
+              className={`w-full rounded px-2 py-1.5 text-left text-caption hover:bg-muted ${
                 !filterCollectionId ? "bg-muted font-medium" : ""
               }`}
             >
@@ -125,7 +125,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
               <button
                 key={c.id}
                 onClick={() => setFilterCollectionId(c.id)}
-                className={`w-full rounded px-2 py-1.5 text-left text-xs hover:bg-muted flex items-center gap-2 ${
+                className={`w-full rounded px-2 py-1.5 text-left text-caption hover:bg-muted flex items-center gap-2 ${
                   filterCollectionId === c.id ? "bg-muted font-medium" : ""
                 }`}
               >
@@ -147,7 +147,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                   onChange={(e) => setNewCollectionName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleCreateCollection()}
                   placeholder="New collection..."
-                  className="h-7 text-xs"
+                  className="h-7 text-caption"
                 />
                 <Button
                   variant="ghost"
@@ -174,7 +174,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                           <Input
                             value={editingCollectionName}
                             onChange={(e) => setEditingCollectionName(e.target.value)}
-                            className="h-6 text-xs"
+                            className="h-6 text-caption"
                             onKeyDown={(e) => e.key === "Enter" && saveEditCollection()}
                           />
                           <Button
@@ -200,7 +200,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex min-w-0 items-center gap-2">
                             <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
-                            <span className="truncate text-xs">{c.name}</span>
+                            <span className="truncate text-caption">{c.name}</span>
                           </div>
                           <div className="flex items-center gap-0.5 shrink-0">
                             <Button
@@ -252,11 +252,11 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                   <div className="flex items-start gap-2 min-w-0 flex-1">
                     <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/60" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground leading-snug break-words">
+                      <p className="text-body-strong text-foreground leading-snug break-words">
                         {item.title}
                       </p>
                       <div className="mt-1 flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-caption text-muted-foreground">
                           {new Date(item.createdAt).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -267,7 +267,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                         {col && (
                           <Badge
                             variant="outline"
-                            className="h-4 px-1.5 text-[10px] gap-1 border-0"
+                            className="h-4 px-1.5 text-micro gap-1 border-0"
                             style={{ backgroundColor: col.color + "22", color: col.color }}
                           >
                             {col.name}
@@ -289,11 +289,11 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-48 p-2" align="end" onClick={(e) => e.stopPropagation()}>
-                        <p className="text-xs font-medium mb-1.5 text-muted-foreground">Add to collection</p>
+                        <p className="text-caption-medium mb-1.5 text-muted-foreground">Add to collection</p>
                         {item.collectionId && (
                           <button
                             onClick={() => handleAssignCollection(item.id, undefined)}
-                            className="w-full rounded px-2 py-1.5 text-left text-xs hover:bg-muted flex items-center gap-2"
+                            className="w-full rounded px-2 py-1.5 text-left text-caption hover:bg-muted flex items-center gap-2"
                           >
                             <X className="h-3 w-3" /> Remove from collection
                           </button>
@@ -302,7 +302,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                           <button
                             key={c.id}
                             onClick={() => handleAssignCollection(item.id, c.id)}
-                            className={`w-full rounded px-2 py-1.5 text-left text-xs hover:bg-muted flex items-center gap-2 ${
+                            className={`w-full rounded px-2 py-1.5 text-left text-caption hover:bg-muted flex items-center gap-2 ${
                               item.collectionId === c.id ? "bg-muted font-medium" : ""
                             }`}
                           >
@@ -311,7 +311,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
                           </button>
                         ))}
                         {collections.length === 0 && (
-                          <p className="text-xs text-muted-foreground/60 py-1 px-2">
+                          <p className="text-caption text-muted-foreground/60 py-1 px-2">
                             No collections yet. Create one using the filter above.
                           </p>
                         )}
@@ -334,7 +334,7 @@ export function HistoryPanel({ history, onSelect, onDelete, activeId, onHistoryU
             );
           })}
           {filtered.length === 0 && filterCollectionId && (
-            <p className="text-xs text-muted-foreground/60 text-center py-6">
+            <p className="text-caption text-muted-foreground/60 text-center py-6">
               No letters in this collection.
             </p>
           )}

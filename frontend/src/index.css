@@ -1,4 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import './styles/typography.css';
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/general-sans/GeneralSans-Variable.woff2') format('woff2'),
+       url('/fonts/general-sans/GeneralSans-Variable.woff') format('woff');
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/general-sans/GeneralSans-VariableItalic.woff2') format('woff2'),
+       url('/fonts/general-sans/GeneralSans-VariableItalic.woff') format('woff');
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: italic;
+}
 
 @tailwind base;
 @tailwind components;
@@ -6,47 +23,48 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 222 30% 12%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 30% 12%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 30% 12%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 222 47% 18%;
-    --primary-foreground: 40 30% 96%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 40% 94%;
-    --secondary-foreground: 222 30% 12%;
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 220 15% 92%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 0%;
 
-    --accent: 36 80% 56%;
-    --accent-foreground: 222 47% 12%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 36 80% 56%;
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 0 0% 0%;
 
-    --radius: 0.75rem;
+    --radius: 0rem;
+    --shadow-brutal: 4px 4px 0 0 hsl(var(--foreground));
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(var(--foreground));
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 0%;
+    --sidebar-ring: 0 0% 0%;
 
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-sans: 'General Sans', system-ui, sans-serif;
   }
 
   .dark {
@@ -96,17 +114,14 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
+    letter-spacing: -0.05em;
   }
 }
 
 @layer utilities {
   .cover-letter-output {
-    font-family: var(--font-body);
+    font-family: var(--font-sans);
     line-height: 1.8;
     white-space: pre-wrap;
   }
