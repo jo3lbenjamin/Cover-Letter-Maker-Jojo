@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { InstructionsEditor } from "@/components/InstructionsEditor";
+import { DocumentsEditor } from "@/components/DocumentsEditor";
 import { IconRail } from "@/components/IconRail";
 import { JobFitPanel, type ParsedJobInsights } from "@/components/JobFitPanel";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
@@ -63,6 +64,7 @@ const Index = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
   const [profile, setProfile] = useState<CandidateProfile>(loadProfile);
   const [instructions, setInstructions] = useState<GenerationInstructions>(loadInstructions);
   const [qualityChecks, setQualityChecks] = useState<QualityChecks | null>(null);
@@ -418,6 +420,7 @@ const Index = () => {
       <IconRail
         profileReady={profileReady}
         onOpenProfile={() => setShowProfile(true)}
+        onOpenDocuments={() => setShowDocuments(true)}
         onOpenInstructions={() => setShowInstructions(true)}
         onToggleHistory={() => setShowHistory((v) => !v)}
         historyCount={history.length}
@@ -532,6 +535,7 @@ const Index = () => {
 
       <ProfileEditor open={showProfile} onOpenChange={setShowProfile} onProfileSaved={setProfile} />
       <InstructionsEditor open={showInstructions} onOpenChange={setShowInstructions} onInstructionsSaved={setInstructions} />
+      <DocumentsEditor open={showDocuments} onOpenChange={setShowDocuments} />
     </div>
   );
 };

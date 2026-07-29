@@ -1,4 +1,4 @@
-import { User, Settings, History, Sun, Moon, AlertCircle } from "lucide-react";
+import { User, Settings, History, Sun, Moon, AlertCircle, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 interface IconRailProps {
   profileReady: boolean;
   onOpenProfile: () => void;
+  onOpenDocuments: () => void;
   onOpenInstructions: () => void;
   onToggleHistory: () => void;
   historyCount: number;
@@ -18,6 +19,7 @@ interface IconRailProps {
 export function IconRail({
   profileReady,
   onOpenProfile,
+  onOpenDocuments,
   onOpenInstructions,
   onToggleHistory,
   historyCount,
@@ -49,6 +51,15 @@ export function IconRail({
         <TooltipContent side="right">
           Profile{!profileReady ? " (incomplete)" : ""}
         </TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" onClick={onOpenDocuments} className="h-10 w-10">
+            <FileUp className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right">My Documents</TooltipContent>
       </Tooltip>
 
       <Tooltip>
