@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { ProfileColumn } from "@/components/profile/ProfileColumn";
@@ -9,6 +8,7 @@ import { HistorySheet } from "@/components/HistorySheet";
 import { IconRail } from "@/components/IconRail";
 import { JobFitPanel, type ParsedJobInsights } from "@/components/JobFitPanel";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { loadHistory, saveToHistory, deleteFromHistory, updateHistoryItem, SavedCoverLetter } from "@/lib/history";
 import { loadProfile, saveProfile, isProfileComplete } from "@/lib/profile";
 import { loadInstructions } from "@/lib/instructions";
@@ -16,6 +16,7 @@ import { loadDocuments } from "@/lib/documents";
 import { toApiCandidateProfile } from "@/lib/apiProfile";
 import { downloadCoverLetterPDF } from "@/lib/pdf";
 import { downloadCoverLetterDOCX } from "@/lib/docx";
+import { getDefaultExpandedSections } from "@/lib/dashboardLayout";
 import type { CandidateProfile, GenerationInstructions, CoverLetterApiRequest, CoverLetterApiResponse, QualityChecks } from "@/types/profile";
 import type { MatchAnalysisApiResponse } from "@/types/jobFit";
 
@@ -67,6 +68,9 @@ const Index = () => {
   const [profile, setProfile] = useState<CandidateProfile>(loadProfile);
   const [instructions, setInstructions] = useState<GenerationInstructions>(loadInstructions);
   const [qualityChecks, setQualityChecks] = useState<QualityChecks | null>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>(() =>
+    getDefaultExpandedSections({ profileComplete: isProfileComplete(profile), hasCoverLetter: false })
+  );
 
   useEffect(() => setMounted(true), []);
 
@@ -328,6 +332,7 @@ const Index = () => {
       const data: CoverLetterApiResponse = await resp.json();
       setCoverLetter(data.cover_letter_text);
       setQualityChecks(data.quality_checks);
+      setExpandedSections((prev) => (prev.includes("coverLetter") ? prev : [...prev, "coverLetter"]));
 
       const autoTitle = buildDefaultTitle(profile.name, data.extracted_fields.role_title, data.extracted_fields.company);
       setLetterTitle(autoTitle);
@@ -452,60 +457,122 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="mb-4 grid gap-2 md:grid-cols-4">
-            <StepCard title="Step 1" subtitle="Set Up Profile" done={profile.skills.length > 0 || profile.experiences.length > 0} />
-            <StepCard title="Step 2" subtitle="Paste or Import Job" done={input.trim().length > 0} />
-            <StepCard title="Step 3" subtitle="Analyze Match" done={Boolean(matchAnalysis)} />
-            <StepCard title="Step 4" subtitle="Generate Letter" done={Boolean(coverLetter)} />
-          </div>
+          <div className="grid gap-5 md:flex-1 md:min-h-0 lg:grid-cols-3">
+            <div className="lg:hidden">
+              <Accordion
+                type="multiple"
+                value={expandedSections}
+                onValueChange={setExpandedSections}
+                className="space-y-3"
+              >
+                <AccordionItem value="profile" className="rounded-xl border border-border/50 bg-card px-4">
+                  <AccordionTrigger className="text-heading text-foreground">Profile</AccordionTrigger>
+                  <AccordionContent>
+                    <ProfileColumn profile={profile} onProfileChange={handleProfileChange} />
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="jobMatch" className="rounded-xl border border-border/50 bg-card px-4">
+                  <AccordionTrigger className="text-heading text-foreground">Job &amp; Match</AccordionTrigger>
+                  <AccordionContent>
+                    <JobFitPanel
+                      profile={profile}
+                      profileReady={profileReady}
+                      jobPosting={input}
+                      onJobPostingChange={setJobPostingInput}
+                      onUndo={handleUndoInput}
+                      onRedo={handleRedoInput}
+                      canUndo={historyIndex > 0}
+                      canRedo={historyIndex < inputHistory.length - 1}
+                      onClear={handleClearInput}
+                      jobUrl={jobUrl}
+                      onJobUrlChange={setJobUrl}
+                      onImportFromLink={handleImportFromJobLink}
+                      isImportingJob={isImportingJob}
+                      jobInsights={jobInsights}
+                      onResearchCompany={handleResearchCompany}
+                      isResearchingCompany={isResearchingCompany}
+                      analysis={analysisIsCurrent ? matchAnalysis : null}
+                      isAnalyzing={isAnalyzing}
+                      onAnalyze={handleAnalyzeMatch}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="coverLetter" className="rounded-xl border border-border/50 bg-card px-4">
+                  <AccordionTrigger className="text-heading text-foreground">Cover Letter</AccordionTrigger>
+                  <AccordionContent>
+                    <CoverLetterPanel
+                      canGenerate={Boolean(input.trim())}
+                      isGenerating={isGenerating}
+                      loadingMessage={LOADING_MESSAGES[loadingStep]}
+                      onGenerate={handleGenerate}
+                      coverLetter={coverLetter}
+                      onCoverLetterChange={setCoverLetter}
+                      letterTitle={letterTitle}
+                      onLetterTitleChange={setLetterTitle}
+                      isEditingTitle={isEditingTitle}
+                      onEditingTitleChange={setIsEditingTitle}
+                      isEditingLetter={isEditingLetter}
+                      onEditingLetterChange={setIsEditingLetter}
+                      onSaveEdit={handleSaveEdit}
+                      onCopy={handleCopyToClipboard}
+                      onDownloadTxt={handleDownloadTxt}
+                      onDownloadDocx={handleDownloadDocx}
+                      onDownloadPdf={handleDownloadPDF}
+                      qualityChecks={qualityChecks}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
 
-          <div className="mb-5">
-            <ProfileColumn profile={profile} onProfileChange={handleProfileChange} />
-          </div>
-
-          <div className="grid gap-5 md:flex-1 md:min-h-0 lg:grid-cols-2">
-            <JobFitPanel
-              profile={profile}
-              profileReady={profileReady}
-              jobPosting={input}
-              onJobPostingChange={setJobPostingInput}
-              onUndo={handleUndoInput}
-              onRedo={handleRedoInput}
-              canUndo={historyIndex > 0}
-              canRedo={historyIndex < inputHistory.length - 1}
-              onClear={handleClearInput}
-              jobUrl={jobUrl}
-              onJobUrlChange={setJobUrl}
-              onImportFromLink={handleImportFromJobLink}
-              isImportingJob={isImportingJob}
-              jobInsights={jobInsights}
-              onResearchCompany={handleResearchCompany}
-              isResearchingCompany={isResearchingCompany}
-              analysis={analysisIsCurrent ? matchAnalysis : null}
-              isAnalyzing={isAnalyzing}
-              onAnalyze={handleAnalyzeMatch}
-            />
-
-            <CoverLetterPanel
-              canGenerate={Boolean(input.trim())}
-              isGenerating={isGenerating}
-              loadingMessage={LOADING_MESSAGES[loadingStep]}
-              onGenerate={handleGenerate}
-              coverLetter={coverLetter}
-              onCoverLetterChange={setCoverLetter}
-              letterTitle={letterTitle}
-              onLetterTitleChange={setLetterTitle}
-              isEditingTitle={isEditingTitle}
-              onEditingTitleChange={setIsEditingTitle}
-              isEditingLetter={isEditingLetter}
-              onEditingLetterChange={setIsEditingLetter}
-              onSaveEdit={handleSaveEdit}
-              onCopy={handleCopyToClipboard}
-              onDownloadTxt={handleDownloadTxt}
-              onDownloadDocx={handleDownloadDocx}
-              onDownloadPdf={handleDownloadPDF}
-              qualityChecks={qualityChecks}
-            />
+            <div className="hidden lg:block rounded-xl border border-border/50 bg-card p-4 overflow-y-auto">
+              <ProfileColumn profile={profile} onProfileChange={handleProfileChange} />
+            </div>
+            <div className="hidden lg:block">
+              <JobFitPanel
+                profile={profile}
+                profileReady={profileReady}
+                jobPosting={input}
+                onJobPostingChange={setJobPostingInput}
+                onUndo={handleUndoInput}
+                onRedo={handleRedoInput}
+                canUndo={historyIndex > 0}
+                canRedo={historyIndex < inputHistory.length - 1}
+                onClear={handleClearInput}
+                jobUrl={jobUrl}
+                onJobUrlChange={setJobUrl}
+                onImportFromLink={handleImportFromJobLink}
+                isImportingJob={isImportingJob}
+                jobInsights={jobInsights}
+                onResearchCompany={handleResearchCompany}
+                isResearchingCompany={isResearchingCompany}
+                analysis={analysisIsCurrent ? matchAnalysis : null}
+                isAnalyzing={isAnalyzing}
+                onAnalyze={handleAnalyzeMatch}
+              />
+            </div>
+            <div className="hidden lg:block">
+              <CoverLetterPanel
+                canGenerate={Boolean(input.trim())}
+                isGenerating={isGenerating}
+                loadingMessage={LOADING_MESSAGES[loadingStep]}
+                onGenerate={handleGenerate}
+                coverLetter={coverLetter}
+                onCoverLetterChange={setCoverLetter}
+                letterTitle={letterTitle}
+                onLetterTitleChange={setLetterTitle}
+                isEditingTitle={isEditingTitle}
+                onEditingTitleChange={setIsEditingTitle}
+                isEditingLetter={isEditingLetter}
+                onEditingLetterChange={setIsEditingLetter}
+                onSaveEdit={handleSaveEdit}
+                onCopy={handleCopyToClipboard}
+                onDownloadTxt={handleDownloadTxt}
+                onDownloadDocx={handleDownloadDocx}
+                onDownloadPdf={handleDownloadPDF}
+                qualityChecks={qualityChecks}
+              />
+            </div>
           </div>
 
           <div className="pt-3 text-center text-[13px] text-muted-foreground/70">
@@ -528,17 +595,5 @@ const Index = () => {
     </div>
   );
 };
-
-function StepCard({ title, subtitle, done }: { title: string; subtitle: string; done: boolean }) {
-  return (
-    <div className="rounded-lg border border-border/60 bg-card px-4 py-3">
-      <p className="text-caption text-muted-foreground">{title}</p>
-      <div className="mt-1 flex items-center justify-between">
-        <p className="text-body-strong text-foreground">{subtitle}</p>
-        {done ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />}
-      </div>
-    </div>
-  );
-}
 
 export default Index;
