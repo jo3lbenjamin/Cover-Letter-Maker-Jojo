@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { HistoryPanel } from "@/components/HistoryPanel";
-import { ProfileEditor } from "@/components/ProfileEditor";
+import { ProfileColumn } from "@/components/profile/ProfileColumn";
 import { InstructionsEditor } from "@/components/InstructionsEditor";
 import { DocumentsEditor } from "@/components/DocumentsEditor";
 import { IconRail } from "@/components/IconRail";
 import { JobFitPanel, type ParsedJobInsights } from "@/components/JobFitPanel";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
 import { loadHistory, saveToHistory, deleteFromHistory, updateHistoryItem, SavedCoverLetter } from "@/lib/history";
-import { loadProfile, isProfileComplete } from "@/lib/profile";
+import { loadProfile, saveProfile, isProfileComplete } from "@/lib/profile";
 import { loadInstructions } from "@/lib/instructions";
 import { loadDocuments } from "@/lib/documents";
 import { toApiCandidateProfile } from "@/lib/apiProfile";
@@ -62,7 +62,6 @@ const Index = () => {
   const [history, setHistory] = useState<SavedCoverLetter[]>([]);
   const [activeId, setActiveId] = useState<string>();
   const [showHistory, setShowHistory] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
   const [profile, setProfile] = useState<CandidateProfile>(loadProfile);
@@ -118,6 +117,11 @@ const Index = () => {
     }, 3000);
     return () => clearInterval(timer);
   }, [isGenerating]);
+
+  const handleProfileChange = (next: CandidateProfile) => {
+    saveProfile(next);
+    setProfile(next);
+  };
 
   const profileReady = isProfileComplete(profile);
   const analysisIsCurrent = Boolean(matchAnalysis) && analyzedJobPosting === input;
@@ -223,7 +227,6 @@ const Index = () => {
   const handleAnalyzeMatch = async () => {
     if (!profileReady) {
       toast.error("Please complete your profile first (name, email, location, phone).");
-      setShowProfile(true);
       return;
     }
     if (!input.trim()) {
@@ -266,7 +269,6 @@ const Index = () => {
     }
     if (!profileReady) {
       toast.error("Please complete your profile first (name, email, location, phone).");
-      setShowProfile(true);
       return;
     }
 
@@ -418,8 +420,6 @@ const Index = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-background transition-colors">
       <IconRail
-        profileReady={profileReady}
-        onOpenProfile={() => setShowProfile(true)}
         onOpenDocuments={() => setShowDocuments(true)}
         onOpenInstructions={() => setShowInstructions(true)}
         onToggleHistory={() => setShowHistory((v) => !v)}
@@ -450,16 +450,6 @@ const Index = () => {
               Set up your profile once, paste a job posting, see how you match, and let AI write a
               compelling, personalized cover letter tailored to you.
             </p>
-
-            {!profileReady && (
-              <button
-                onClick={() => setShowProfile(true)}
-                className="mt-2 inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-1.5 text-caption text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200 dark:hover:bg-amber-900/50"
-              >
-                <AlertCircle className="h-4 w-4" />
-                Complete your profile to get started
-              </button>
-            )}
           </div>
 
           <div className="mb-4 grid gap-2 md:grid-cols-4">
@@ -467,6 +457,10 @@ const Index = () => {
             <StepCard title="Step 2" subtitle="Paste or Import Job" done={input.trim().length > 0} />
             <StepCard title="Step 3" subtitle="Analyze Match" done={Boolean(matchAnalysis)} />
             <StepCard title="Step 4" subtitle="Generate Letter" done={Boolean(coverLetter)} />
+          </div>
+
+          <div className="mb-5">
+            <ProfileColumn profile={profile} onProfileChange={handleProfileChange} />
           </div>
 
           <div className={`grid gap-5 md:flex-1 md:min-h-0 ${showHistory ? "lg:grid-cols-[280px_1fr_1fr]" : "lg:grid-cols-2"}`}>
@@ -533,7 +527,6 @@ const Index = () => {
         </main>
       </div>
 
-      <ProfileEditor open={showProfile} onOpenChange={setShowProfile} onProfileSaved={setProfile} />
       <InstructionsEditor open={showInstructions} onOpenChange={setShowInstructions} onInstructionsSaved={setInstructions} />
       <DocumentsEditor open={showDocuments} onOpenChange={setShowDocuments} />
     </div>

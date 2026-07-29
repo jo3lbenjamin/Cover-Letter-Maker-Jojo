@@ -1,11 +1,8 @@
-import { User, Settings, History, Sun, Moon, AlertCircle, FileUp } from "lucide-react";
+import { Settings, History, Sun, Moon, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface IconRailProps {
-  profileReady: boolean;
-  onOpenProfile: () => void;
   onOpenDocuments: () => void;
   onOpenInstructions: () => void;
   onToggleHistory: () => void;
@@ -17,8 +14,6 @@ interface IconRailProps {
 }
 
 export function IconRail({
-  profileReady,
-  onOpenProfile,
   onOpenDocuments,
   onOpenInstructions,
   onToggleHistory,
@@ -31,27 +26,6 @@ export function IconRail({
   return (
     <nav className="flex w-16 shrink-0 flex-col items-center gap-3 border-r border-border/50 bg-card py-4">
       <img src="/logo.png" alt="CoverCraft" className="mb-2 h-8 w-8 rounded-md object-contain" />
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={onOpenProfile}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-muted"
-          >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">
-                <User className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
-            {!profileReady && (
-              <AlertCircle className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-background text-amber-500" />
-            )}
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="right">
-          Profile{!profileReady ? " (incomplete)" : ""}
-        </TooltipContent>
-      </Tooltip>
 
       <Tooltip>
         <TooltipTrigger asChild>
