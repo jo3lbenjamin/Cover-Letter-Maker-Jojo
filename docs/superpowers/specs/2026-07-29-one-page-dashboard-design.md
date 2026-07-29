@@ -72,7 +72,7 @@ Unchanged behavior from today's `CoverLetterPanel`, repositioned as the permanen
 
 - Same completeness gating as today: Job & Match and Cover Letter columns show an inline disabled state with a prompt when the profile is incomplete, instead of allowing API calls to fail.
 - Extraction failures (unparseable file, empty/too-short text) keep existing toast-based error handling.
-- Editing a summary card and navigating away without saving: changes are held in local component state and discarded if the user collapses/toggles away without an explicit save, consistent with the current `ProfileEditor` form behavior (no autosave-on-blur).
+- Editing a summary card commits each field change immediately (autosave via `saveProfile`), the same way the always-visible contact mini-form does — there is no separate "Save" action to forget, since there's no longer a sheet to close without saving. This is a deliberate change from `ProfileEditor`'s old explicit-Save-button behavior, made possible by removing the sheet.
 - If a screen is resized across the responsive breakpoint while a card is mid-edit, the edit state is preserved (it's just presentation/layout that changes, not component unmount).
 
 ## Removed / Changed Components
