@@ -73,7 +73,7 @@ Unchanged behavior from today's `CoverLetterPanel`, repositioned as the permanen
 - Same completeness gating as today: Job & Match and Cover Letter columns show an inline disabled state with a prompt when the profile is incomplete, instead of allowing API calls to fail.
 - Extraction failures (unparseable file, empty/too-short text) keep existing toast-based error handling.
 - Editing a summary card commits each field change immediately (autosave via `saveProfile`), the same way the always-visible contact mini-form does — there is no separate "Save" action to forget, since there's no longer a sheet to close without saving. This is a deliberate change from `ProfileEditor`'s old explicit-Save-button behavior, made possible by removing the sheet.
-- If a screen is resized across the responsive breakpoint while a card is mid-edit, the edit state is preserved (it's just presentation/layout that changes, not component unmount).
+- If a screen is resized across the responsive breakpoint while a card is mid-edit, the edit state (open edit panel, unsaved outcome/technology text) resets — the accordion view and the desktop grid view are implemented as two independently-mounted component trees (see Architecture), so they hold separate local state. This is an accepted limitation, not a bug: resizing mid-edit across exactly this breakpoint is a narrow edge case, and fully sharing edit state between the two trees would require lifting it into `Index.tsx` for every section component, a materially larger change than this spec's scope.
 
 ## Removed / Changed Components
 
