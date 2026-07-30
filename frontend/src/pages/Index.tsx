@@ -449,7 +449,8 @@ const Index = () => {
         <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 md:overflow-hidden">
           <div className="mb-4 text-center">
             <h2 className="font-display text-display text-foreground">
-              Analyze the job, then craft the perfect <span className="text-accent">cover letter</span>
+              Analyze the job, then craft the perfect{" "}
+              <span className="underline decoration-2 underline-offset-[6px]">cover letter</span>
             </h2>
             <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
               Set up your profile once, paste a job posting, see how you match, and let AI write a
